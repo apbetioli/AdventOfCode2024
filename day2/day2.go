@@ -31,29 +31,63 @@ func puzzle1() int {
 	count := 0
 
 	for i := 0; i < len(reports); i++ {
+		if isSafe(reports[i]) {
+			count++
+		}
+	}
 
-		safe := true
-		descending := reports[i][0] > reports[i][1]
+	return count
+}
 
-		for j := 1; j < len(reports[i]); j++ {
-			curr := reports[i][j]
-			prev := reports[i][j-1]
+func isSafe(slice []int) bool {
+	safe := true
+	descending := slice[0] > slice[len(slice)-1]
 
-			if descending {
-				if (prev-curr) <= 0 || (prev-curr) > 3 {
-					safe = false
-					break
-				}
-			} else {
-				if (curr-prev) <= 0 || (curr-prev) > 3 {
-					safe = false
-					break
-				}
+	for j := 1; j < len(slice); j++ {
+		curr := slice[j]
+		prev := slice[j-1]
+
+		if descending {
+			if !isValid(prev, curr) {
+				safe = false
+				break
+			}
+		} else {
+			if !isValid(curr, prev) {
+				safe = false
+				break
 			}
 		}
+	}
 
-		if safe {
+	return safe
+}
+
+func isValid(a int, b int) bool {
+	return (a-b) > 0 && (a-b) <= 3
+}
+
+func puzzle2() int {
+	reports := readInput()
+
+	count := 0
+
+	for i := 0; i < len(reports); i++ {
+
+		if isSafe(reports[i]) {
 			count++
+			continue
+		}
+
+		for k := 0; k < len(reports[i]); k++ {
+			var slice []int
+			slice = append(slice, reports[i][:k]...)
+			slice = append(slice, reports[i][k+1:]...)
+
+			if isSafe(slice) {
+				count++
+				break
+			}
 		}
 
 	}
@@ -63,4 +97,5 @@ func puzzle1() int {
 
 func main() {
 	fmt.Println(puzzle1())
+	fmt.Println(puzzle2())
 }
