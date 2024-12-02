@@ -10,7 +10,7 @@ import (
 )
 
 func readInput() ([]int, []int) {
-	lines := utils.ReadLines("input.txt")
+	lines := utils.ReadInputLines()
 
 	var list1 []int
 	var list2 []int
@@ -27,7 +27,7 @@ func readInput() ([]int, []int) {
 	return list1, list2
 }
 
-func puzzle1() {
+func puzzle1() int {
 	list1, list2 := readInput()
 	sort.Ints(list1)
 	sort.Ints(list2)
@@ -39,10 +39,10 @@ func puzzle1() {
 		sum += diff
 	}
 
-	fmt.Println(sum)
+	return sum
 }
 
-func puzzle2() {
+func puzzle2() int {
 	list1, list2 := readInput()
 
 	count := make(map[int]int)
@@ -60,10 +60,10 @@ func puzzle2() {
 
 	}
 
-	fmt.Println(score)
+	return score
 }
 
 func main() {
-	puzzle1()
-	puzzle2()
+	fmt.Println(puzzle1())
+	fmt.Println(puzzle2())
 }
