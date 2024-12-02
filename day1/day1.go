@@ -27,7 +27,7 @@ func readInput() ([]int, []int) {
 	return list1, list2
 }
 
-func main() {
+func puzzle1() {
 	list1, list2 := readInput()
 	sort.Ints(list1)
 	sort.Ints(list2)
@@ -39,5 +39,31 @@ func main() {
 		sum += diff
 	}
 
-	fmt.Print(sum)
+	fmt.Println(sum)
+}
+
+func puzzle2() {
+	list1, list2 := readInput()
+
+	count := make(map[int]int)
+
+	for i := 0; i < len(list2); i++ {
+		key := list2[i]
+		count[key] = count[key] + 1
+	}
+
+	score := 0
+
+	for i := 0; i < len(list1); i++ {
+		key := list1[i]
+		score += key * count[key]
+
+	}
+
+	fmt.Println(score)
+}
+
+func main() {
+	puzzle1()
+	puzzle2()
 }
