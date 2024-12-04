@@ -52,6 +52,21 @@ func countXmas(matrix [][]string, r int, c int) int {
 	return words
 }
 
+func puzzle1() int {
+	matrix := readInput()
+	total := 0
+
+	for r := 0; r < len(matrix); r++ {
+		for c := 0; c < len(matrix[r]); c++ {
+			if matrix[r][c] == "X" {
+				total += countXmas(matrix, r, c)
+			}
+		}
+	}
+
+	return total
+}
+
 func countX_mas(matrix [][]string, r int, c int) int {
 
 	directions := [4][2]int{
@@ -75,6 +90,8 @@ func countX_mas(matrix [][]string, r int, c int) int {
 			m--
 		} else if matrix[y][x] == "S" {
 			s--
+		} else {
+			break
 		}
 	}
 
@@ -87,21 +104,6 @@ func countX_mas(matrix [][]string, r int, c int) int {
 	}
 
 	return 1
-}
-
-func puzzle1() int {
-	matrix := readInput()
-	total := 0
-
-	for r := 0; r < len(matrix); r++ {
-		for c := 0; c < len(matrix[r]); c++ {
-			if matrix[r][c] == "X" {
-				total += countXmas(matrix, r, c)
-			}
-		}
-	}
-
-	return total
 }
 
 func puzzle2() int {
