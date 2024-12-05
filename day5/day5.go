@@ -3,6 +3,7 @@ package main
 import (
 	"adventofcode/2024/utils"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -39,8 +40,7 @@ func isValid(precedence map[int][]int, update []int) bool {
 
 	seen := make(map[int]bool)
 
-	for i := 0; i < len(update); i++ {
-		current := update[i]
+	for _, current := range update {
 		pages := precedence[current]
 		for _, page := range pages {
 			if seen[page] {
@@ -54,6 +54,16 @@ func isValid(precedence map[int][]int, update []int) bool {
 	return true
 }
 
+func sumMidValues(updates [][]int) int {
+	var sum int
+	for _, update := range updates {
+		mid := len(update) / 2
+		sum += update[mid]
+	}
+
+	return sum
+}
+
 func puzzle1() int {
 	precedence, updates := readInput()
 
@@ -65,17 +75,32 @@ func puzzle1() int {
 		}
 	}
 
-	var sum int
-	for _, update := range valid {
-		mid := len(update) / 2
-		sum += update[mid]
-	}
+	return sumMidValues(valid)
+}
 
-	return sum
+func sortNumbers(precedence map[int][]int, update []int) []int {
+	sort.Slice(update, func(i, j int) bool {
+		current := update[j]
+		pages := precedence[current]
+		return !utils.Contains(pages, update[i])
+	})
+
+	return update
 }
 
 func puzzle2() int {
-	return 0
+	precedence, updates := readInput()
+
+	var invalid [][]int
+
+	for _, update := range updates {
+		if !isValid(precedence, update) {
+			sorted := sortNumbers(precedence, update)
+			invalid = append(invalid, sorted)
+		}
+	}
+
+	return sumMidValues(invalid)
 }
 
 func main() {
