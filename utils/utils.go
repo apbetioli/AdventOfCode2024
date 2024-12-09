@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -43,4 +44,13 @@ func Contains(slice []int, value int) bool {
 		}
 	}
 	return false
+}
+
+func Debug(matrix [][]string) {
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[0]); j++ {
+			fmt.Print(matrix[i][j])
+		}
+		fmt.Println()
+	}
 }
