@@ -5,41 +5,48 @@ import (
 	"fmt"
 )
 
-func readInput() string {
-	lines := utils.ReadInputLines()
-	return lines[0]
+type mem struct {
+	position int
+	size     int
 }
 
-func getRepresentation(diskMap string) []int {
-	size := 0
-	for _, rune := range diskMap {
-		n := int(rune - '0')
-		size += n
-	}
+func readInput() ([]mem, []mem, int) {
+	lines := utils.ReadInputLines()
+	diskMap := lines[0]
 
-	var representation []int = make([]int, size)
+	var files []mem
+	var spaces []mem
 
-	var fileId int
 	var index int
 
 	for i, rune := range diskMap {
 		n := int(rune - '0')
 
-		if i%2 == 0 { //file
-			for j := 0; j < n; j++ {
-				representation[index] = fileId
-				index++
-			}
-			fileId++
-		} else { //space
-			for r := 0; r < n; r++ {
-				representation[index] = -1
-				index++
-			}
+		if i%2 == 0 {
+			files = append(files, mem{index, n})
+		} else {
+			spaces = append(spaces, mem{index, n})
 		}
+
+		index += n
 	}
 
-	fmt.Println(representation)
+	return files, spaces, index
+}
+
+func getRepresentation(files []mem, size int) []int {
+
+	var representation []int = make([]int, size)
+
+	for i := 0; i < size; i++ {
+		representation[i] = -1
+	}
+
+	for id, info := range files {
+		for j := 0; j < info.size; j++ {
+			representation[info.position+j] = id
+		}
+	}
 
 	return representation
 }
@@ -77,16 +84,32 @@ func calculateChecksum(compacted []int) int {
 }
 
 func puzzle1() int {
-	diskMap := readInput()
-	representation := getRepresentation(diskMap)
+	files, _, size := readInput()
+	representation := getRepresentation(files, size)
 	compacted := compact(representation)
-	checksum := calculateChecksum(compacted)
+	return calculateChecksum(compacted)
+}
 
-	return checksum
+func defrag(files []mem, spaces []mem) []mem {
+
+	for f := len(files) - 1; f > 0; f-- {
+		for s := 0; s < len(spaces) && spaces[s].position < files[f].position; s++ {
+			if spaces[s].size >= files[f].size {
+				files[f].position = spaces[s].position
+				spaces[s].position += files[f].size
+				spaces[s].size -= files[f].size
+			}
+		}
+	}
+
+	return files
 }
 
 func puzzle2() int {
-	return 0
+	files, spaces, size := readInput()
+	files = defrag(files, spaces)
+	representation := getRepresentation(files, size)
+	return calculateChecksum(representation)
 }
 
 func main() {
