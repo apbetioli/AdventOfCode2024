@@ -60,9 +60,11 @@ func compact(representation []string) ([]string, int) {
 
 func calculateChecksum(compacted []string) int {
 	var checksum int
-	for i := 0; i < len(compacted) && compacted[i] != "."; i++ {
-		n, _ := strconv.Atoi(compacted[i])
-		checksum += i * n
+	for i := 0; i < len(compacted); i++ {
+		if compacted[i] != "." {
+			n, _ := strconv.Atoi(compacted[i])
+			checksum += i * n
+		}
 	}
 	return checksum
 }
