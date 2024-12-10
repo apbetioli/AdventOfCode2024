@@ -3,67 +3,74 @@ package main
 import (
 	"adventofcode/2024/utils"
 	"fmt"
-	"strconv"
-	"strings"
 )
 
-func readInput() []string {
+func readInput() string {
 	lines := utils.ReadInputLines()
-	return strings.Split(lines[0], "")
+	return lines[0]
 }
 
-func getRepresentation(diskMap []string) []string {
-	var representation []string
+func getRepresentation(diskMap string) []int {
+	size := 0
+	for _, rune := range diskMap {
+		n := int(rune - '0')
+		size += n
+	}
 
-	var f int
-	for i := 0; i < len(diskMap); i++ {
-		n, _ := strconv.Atoi(diskMap[i])
+	var representation []int = make([]int, size)
+
+	var fileId int
+	var index int
+
+	for i, rune := range diskMap {
+		n := int(rune - '0')
+
 		if i%2 == 0 { //file
-			for r := 0; r < n; r++ {
-				representation = append(representation, strconv.Itoa(f))
+			for j := 0; j < n; j++ {
+				representation[index] = fileId
+				index++
 			}
-			f++
+			fileId++
 		} else { //space
 			for r := 0; r < n; r++ {
-				representation = append(representation, ".")
+				representation[index] = -1
+				index++
 			}
 		}
 	}
 
+	fmt.Println(representation)
+
 	return representation
 }
 
-func compact(representation []string) ([]string, int) {
-
-	compacted := make([]string, len(representation))
-	copy(compacted, representation)
+func compact(compacted []int) []int {
 
 	var a int
 	var b int = len(compacted) - 1
 
 	for a < b {
-		if compacted[a] != "." {
+		if compacted[a] != -1 {
 			a++
-		} else if compacted[b] == "." {
+		} else if compacted[b] == -1 {
 			b--
 		} else {
 			compacted[a] = compacted[b]
-			compacted[b] = "."
+			compacted[b] = -1
 			a++
 			b--
 		}
 
 	}
 
-	return compacted, a
+	return compacted
 }
 
-func calculateChecksum(compacted []string) int {
+func calculateChecksum(compacted []int) int {
 	var checksum int
 	for i := 0; i < len(compacted); i++ {
-		if compacted[i] != "." {
-			n, _ := strconv.Atoi(compacted[i])
-			checksum += i * n
+		if compacted[i] != -1 {
+			checksum += i * compacted[i]
 		}
 	}
 	return checksum
@@ -72,7 +79,7 @@ func calculateChecksum(compacted []string) int {
 func puzzle1() int {
 	diskMap := readInput()
 	representation := getRepresentation(diskMap)
-	compacted, _ := compact(representation)
+	compacted := compact(representation)
 	checksum := calculateChecksum(compacted)
 
 	return checksum
