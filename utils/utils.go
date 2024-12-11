@@ -54,3 +54,7 @@ func Debug(matrix [][]string) {
 		fmt.Println()
 	}
 }
+
+func IsValidCoordinate(matrix [][]string, y int, x int) bool {
+	return y >= 0 && y < len(matrix) && x >= 0 && x < len(matrix[0])
+}

@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+type coordinate struct {
+	y int
+	x int
+}
+
+func (position *coordinate) sum(direction coordinate) coordinate {
+	return coordinate{position.y + direction.y, position.x + direction.x}
+}
+
 func readInput() [][]string {
 	var matrix [][]string
 	lines := utils.ReadInputLines()
@@ -16,51 +25,60 @@ func readInput() [][]string {
 	return matrix
 }
 
-func calculateStartPosition(matrix [][]string) (int, int) {
+func calculateStartPosition(matrix [][]string) coordinate {
 	for y := 0; y < len(matrix); y++ {
 		for x := 0; x < len(matrix[y]); x++ {
 			if matrix[y][x] == "^" {
-				return y, x
+				return coordinate{y, x}
 			}
 		}
 	}
 	panic("Guard not found")
 }
 
-func puzzle1() int {
-
-	matrix := readInput()
-	y, x := calculateStartPosition(matrix)
-
-	directions := [4][2]int{
-		{-1, 0},
-		{0, 1},
-		{1, 0},
-		{0, -1},
+func directioner() (coordinate, func() coordinate) {
+	directions := [4]coordinate{
+		{-1, 0}, //up
+		{0, 1},  //right
+		{1, 0},  //left
+		{0, -1}, //down
 	}
-
-	distinct := 1
-	matrix[y][x] = "X"
 
 	directionIndex := 0
 	direction := directions[0]
 
-	for {
-		ny := y + direction[0]
-		nx := x + direction[1]
+	return direction, func() coordinate {
+		directionIndex++
+		direction = directions[directionIndex%4]
+		return direction
+	}
 
-		if ny < 0 || ny >= len(matrix) || nx < 0 || nx >= len(matrix[0]) {
+}
+
+func puzzle1() int {
+
+	matrix := readInput()
+	position := calculateStartPosition(matrix)
+
+	distinct := 1
+	matrix[position.y][position.x] = "X"
+
+	direction, turnRight := directioner()
+
+	for {
+		next := position.sum(direction)
+
+		if !utils.IsValidCoordinate(matrix, next.y, next.x) {
 			break
 		}
 
-		if matrix[ny][nx] == "#" {
-			directionIndex++
-			direction = directions[directionIndex%4]
+		if matrix[next.y][next.x] == "#" {
+			// There is a wall in front of the guard, change direction
+			direction = turnRight()
 		} else {
-			y = ny
-			x = nx
-			if matrix[y][x] != "X" {
-				matrix[y][x] = "X"
+			position = next
+			if matrix[position.y][position.x] != "X" {
+				matrix[position.y][position.x] = "X"
 				distinct++
 			}
 		}
@@ -69,8 +87,58 @@ func puzzle1() int {
 	return distinct
 }
 
+/*
+*
+The idea is to check if at any step if changing direction would match
+a previously run path in the same direction. If so, the next position can be
+an obstruction (if not already)
+
+Create a generic search function that detects loops.
+For each position simulate an obstacle and check for loop.
+*/
 func puzzle2() int {
-	return 0
+	matrix := readInput()
+	position := calculateStartPosition(matrix)
+
+	mark := [4]string{"|", "-", "|", "-"}
+
+	obstructions := 0
+
+	direction, turnRight := directioner()
+	directionIndex := 0
+
+	for {
+		next := position.sum(direction)
+
+		if !utils.IsValidCoordinate(matrix, next.y, next.x) {
+			break
+		}
+
+		if matrix[next.y][next.x] == "#" {
+			// There is a wall in front of the guard, change direction
+			matrix[position.y][position.x] = "+"
+			direction = turnRight()
+			directionIndex++
+			continue
+		}
+
+		//Suppose if we change direction now, would it be a loop?
+		// if loopFound(matrix, directions, directionIndex, y, x) {
+		// 	obstructions++
+		// 	matrix[ny][nx] = "O"
+		// }
+
+		position = next
+		if matrix[position.y][position.x] == "." {
+			matrix[position.y][position.x] = mark[directionIndex%4]
+		} else if matrix[position.y][position.x] != "^" {
+			matrix[position.y][position.x] = "+"
+		}
+	}
+
+	utils.Debug(matrix)
+
+	return obstructions
 }
 
 func main() {
