@@ -24,7 +24,7 @@ func readInput() [][]int {
 	return matrix
 }
 
-func countTrails(matrix [][]int, r int, c int, level int) int {
+func countTrails(matrix [][]int, r int, c int, level int, remove bool) int {
 
 	if !utils.IsValidCoordinate(matrix, r, c) {
 		return 0
@@ -35,14 +35,16 @@ func countTrails(matrix [][]int, r int, c int, level int) int {
 	}
 
 	if matrix[r][c] == 9 {
-		matrix[r][c] = -1 // remove from results
+		if remove {
+			matrix[r][c] = -1 // remove from results
+		}
 		return 1
 	}
 
-	return countTrails(matrix, r-1, c, level+1) +
-		countTrails(matrix, r+1, c, level+1) +
-		countTrails(matrix, r, c-1, level+1) +
-		countTrails(matrix, r, c+1, level+1)
+	return countTrails(matrix, r-1, c, level+1, remove) +
+		countTrails(matrix, r+1, c, level+1, remove) +
+		countTrails(matrix, r, c-1, level+1, remove) +
+		countTrails(matrix, r, c+1, level+1, remove)
 }
 
 func copyMatrix(matrix [][]int) [][]int {
@@ -64,7 +66,7 @@ func puzzle1() int {
 		for c := 0; c < len(matrix[r]); c++ {
 			if matrix[r][c] == 0 {
 				matrixCopy := copyMatrix(matrix)
-				score := countTrails(matrixCopy, r, c, 0)
+				score := countTrails(matrixCopy, r, c, 0, true)
 				total += score
 			}
 		}
@@ -74,7 +76,21 @@ func puzzle1() int {
 }
 
 func puzzle2() int {
-	return 0
+	matrix := readInput()
+
+	total := 0
+
+	for r := 0; r < len(matrix); r++ {
+		for c := 0; c < len(matrix[r]); c++ {
+			if matrix[r][c] == 0 {
+				matrixCopy := copyMatrix(matrix)
+				score := countTrails(matrixCopy, r, c, 0, false)
+				total += score
+			}
+		}
+	}
+
+	return total
 }
 
 func main() {
