@@ -46,7 +46,7 @@ func Contains(slice []int, value int) bool {
 	return false
 }
 
-func Debug(matrix [][]string) {
+func Debug[T any](matrix [][]T) {
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[0]); j++ {
 			fmt.Print(matrix[i][j])
@@ -55,6 +55,6 @@ func Debug(matrix [][]string) {
 	}
 }
 
-func IsValidCoordinate(matrix [][]string, y int, x int) bool {
+func IsValidCoordinate[T any](matrix [][]T, y int, x int) bool {
 	return y >= 0 && y < len(matrix) && x >= 0 && x < len(matrix[0])
 }
