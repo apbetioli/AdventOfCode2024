@@ -3,37 +3,37 @@ package main
 import (
 	"adventofcode/2024/utils"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
-func readInput() []string {
+func readInput() []int {
 	lines := utils.ReadInputLines()
-	return strings.Split(lines[0], " ")
+	return utils.StringArrayToIntArray(strings.Split(lines[0], " "))
 }
 
-func blink(line []string) []string {
-	var newLine []string
+func blink(line []int) []int {
+	var newLine []int
 	for _, stone := range line {
-		if stone == "0" {
-			newLine = append(newLine, "1")
-		} else if len(stone)%2 == 0 {
-			mid := len(stone) / 2
-			s1 := stone[:mid]
-			s2 := stone[mid:]
-			n1, _ := strconv.Atoi(s1)
-			n2, _ := strconv.Atoi(s2)
-			newLine = append(newLine, strconv.Itoa(n1), strconv.Itoa(n2))
+		if stone == 0 {
+			newLine = append(newLine, 1)
+		} else if stoneStr := strconv.Itoa(stone); len(stoneStr)%2 == 0 {
+			mid := len(stoneStr) / 2
+			n1, _ := strconv.Atoi(stoneStr[:mid])
+			n2, _ := strconv.Atoi(stoneStr[mid:])
+			newLine = append(newLine, n1, n2)
 		} else {
-			n, _ := strconv.Atoi(stone)
-			n *= 2024
-			newLine = append(newLine, strconv.Itoa(n))
+			newLine = append(newLine, stone*2024)
 		}
 	}
 	return newLine
 }
 
 func puzzle1() int {
+	defer duration(track("puzzle1"))
+
 	line := readInput()
 
 	for i := 0; i < 25; i++ {
@@ -44,10 +44,26 @@ func puzzle1() int {
 }
 
 func puzzle2() int {
-	return 0
+	defer duration(track("puzzle1"))
+
+	line := readInput()
+
+	for i := 0; i < 75; i++ {
+		line = blink(line)
+	}
+
+	return len(line)
 }
 
 func main() {
 	fmt.Println(puzzle1())
 	fmt.Println(puzzle2())
+}
+
+func track(msg string) (string, time.Time) {
+	return msg, time.Now()
+}
+
+func duration(msg string, start time.Time) {
+	log.Printf("%v: %v\n", msg, time.Since(start))
 }
