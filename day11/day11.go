@@ -14,21 +14,29 @@ func readInput() []int {
 	return utils.StringArrayToIntArray(strings.Split(lines[0], " "))
 }
 
-func blink(line []int) []int {
-	var newLine []int
-	for _, stone := range line {
-		if stone == 0 {
-			newLine = append(newLine, 1)
-		} else if stoneStr := strconv.Itoa(stone); len(stoneStr)%2 == 0 {
-			mid := len(stoneStr) / 2
-			n1, _ := strconv.Atoi(stoneStr[:mid])
-			n2, _ := strconv.Atoi(stoneStr[mid:])
-			newLine = append(newLine, n1, n2)
-		} else {
-			newLine = append(newLine, stone*2024)
-		}
+func change(stone int) []int {
+	if stone == 0 {
+		return []int{1}
+	} else if stoneStr := strconv.Itoa(stone); len(stoneStr)%2 == 0 {
+		mid := len(stoneStr) / 2
+		n1, _ := strconv.Atoi(stoneStr[:mid])
+		n2, _ := strconv.Atoi(stoneStr[mid:])
+		return []int{n1, n2}
+	} else {
+		return []int{stone * 2024}
 	}
-	return newLine
+}
+
+func cachedChange() func(int) []int {
+
+	var cache = make(map[int][]int)
+
+	return func(stone int) []int {
+		if len(cache[stone]) == 0 {
+			cache[stone] = change(stone)
+		}
+		return cache[stone]
+	}
 }
 
 func puzzle1() int {
@@ -36,8 +44,14 @@ func puzzle1() int {
 
 	line := readInput()
 
+	blink := cachedChange()
+
 	for i := 0; i < 25; i++ {
-		line = blink(line)
+		var newLine []int
+		for _, stone := range line {
+			newLine = append(newLine, blink(stone)...)
+		}
+		line = newLine
 	}
 
 	return len(line)
@@ -48,8 +62,14 @@ func puzzle2() int {
 
 	line := readInput()
 
+	blink := cachedChange()
+
 	for i := 0; i < 75; i++ {
-		line = blink(line)
+		var newLine []int
+		for _, stone := range line {
+			newLine = append(newLine, blink(stone)...)
+		}
+		line = newLine
 	}
 
 	return len(line)
