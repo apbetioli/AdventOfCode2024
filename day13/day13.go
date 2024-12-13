@@ -9,9 +9,9 @@ import (
 )
 
 type machine struct {
-	a     [2]int
-	b     [2]int
-	prize [2]int
+	a [2]int
+	b [2]int
+	p [2]int
 }
 
 func readButtonLine(line string) [2]int {
@@ -42,7 +42,7 @@ func readInput() []machine {
 
 		claw.a = readButtonLine(lines[i])
 		claw.b = readButtonLine(lines[i+1])
-		claw.prize = readPrizeLine(lines[i+2])
+		claw.p = readPrizeLine(lines[i+2])
 
 		machines = append(machines, claw)
 	}
@@ -58,8 +58,8 @@ func calculate(m machine) float64 {
 			if a+b == 0 {
 				continue
 			}
-			remX := (a*m.a[0] + b*m.b[0]) % m.prize[0]
-			remY := (a*m.a[1] + b*m.b[1]) % m.prize[1]
+			remX := (a*m.a[0] + b*m.b[0]) % m.p[0]
+			remY := (a*m.a[1] + b*m.b[1]) % m.p[1]
 			if remX == 0 && remY == 0 {
 				cost := 3*a + b
 				if float64(cost) < bestCost {
@@ -69,7 +69,38 @@ func calculate(m machine) float64 {
 		}
 	}
 
+	if math.IsInf(bestCost, 1) {
+		return 0
+	}
+
 	return bestCost
+}
+
+func cramers(m machine) int {
+
+	det := m.b[1]*m.a[0] - m.b[0]*m.a[1]
+
+	if det == 0 {
+		// No solution or multiple solutions
+		panic("No solution or multiple solutions")
+	}
+
+	detA := m.p[0]*m.b[1] - m.p[1]*m.b[0]
+	detB := m.a[0]*m.p[1] - m.a[1]*m.p[0]
+
+	a := detA / det
+	b := detB / det
+
+	cost := 3*a + b
+
+	x := a*m.a[0] + b*m.b[0]
+	y := a*m.a[1] + b*m.b[1]
+
+	if x == m.p[0] && y == m.p[1] {
+		return cost
+	} else {
+		return 0
+	}
 }
 
 func puzzle1() int {
@@ -79,17 +110,26 @@ func puzzle1() int {
 
 	for _, machine := range machines {
 		cost := calculate(machine)
-		if !math.IsInf(cost, 1) {
-			sum += int(cost)
-		}
-
+		sum += int(cost)
 	}
 
 	return sum
 }
 
 func puzzle2() int {
-	return 0
+	machines := readInput()
+
+	sum := 0
+
+	for _, machine := range machines {
+		machine.p[0] += 10000000000000
+		machine.p[1] += 10000000000000
+
+		cost := cramers(machine)
+		sum += int(cost)
+	}
+
+	return sum
 }
 
 func main() {
