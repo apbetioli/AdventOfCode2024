@@ -49,10 +49,10 @@ func readInput() []Robot {
 	return robots
 }
 
-func printMatrix(robots []Robot) [][]int {
-	var matrix = make([][]int, 7)
+func getMatrix(robots []Robot, width int, height int) [][]int {
+	var matrix = make([][]int, height)
 	for i := range matrix {
-		matrix[i] = make([]int, 11)
+		matrix[i] = make([]int, width)
 	}
 
 	for _, robot := range robots {
@@ -72,9 +72,9 @@ func calculateSafetyFactor(robots []Robot, width int, height int) int {
 	for _, robot := range robots {
 		if robot.px < mx && robot.py < my {
 			q1++
-		} else if robot.px < mx && robot.py > my {
-			q2++
 		} else if robot.px > mx && robot.py < my {
+			q2++
+		} else if robot.px < mx && robot.py > my {
 			q3++
 		} else if robot.px > mx && robot.py > my {
 			q4++
@@ -82,11 +82,25 @@ func calculateSafetyFactor(robots []Robot, width int, height int) int {
 	}
 
 	return q1 * q2 * q3 * q4
+}
 
+func isChristmasTree(matrix [][]int) bool {
+	height := len(matrix)
+	width := len(matrix[0])
+	mx := width / 2
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < mx; x++ {
+			if matrix[y][x] != matrix[y][width-x-1] {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func puzzle1() int {
-
 	robots := readInput()
 	width := 101
 	height := 103
@@ -95,13 +109,30 @@ func puzzle1() int {
 		robots[r].update(100, width, height)
 	}
 
-	// printMatrix(robots)
-
 	return calculateSafetyFactor(robots, width, height)
 }
 
 func puzzle2() int {
-	return 0
+	robots := readInput()
+	width := 101
+	height := 103
+
+	var matrix = getMatrix(robots, width, height)
+
+	i := 0
+	for !isChristmasTree(matrix) {
+		for r := range robots {
+			matrix[robots[r].py][robots[r].px] -= 1
+			robots[r].update(1, width, height)
+			matrix[robots[r].py][robots[r].px] += 1
+		}
+
+		i++
+	}
+
+	utils.Debug(matrix)
+
+	return i
 }
 
 func main() {
