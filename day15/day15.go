@@ -3,6 +3,8 @@ package main
 import (
 	"adventofcode/2024/utils"
 	"fmt"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -53,9 +55,7 @@ func getBoxes(matrix [][]string) [][2]int {
 func puzzle1() int {
 	matrix, movements := readInput()
 
-	// fmt.Println("Initial state:")
 	// utils.Debug(matrix)
-	// fmt.Println()
 
 	robot := getRobot(matrix)
 
@@ -85,9 +85,7 @@ func puzzle1() int {
 			}
 		}
 
-		// fmt.Println("Move", move, ":")
 		// utils.Debug(matrix)
-		// fmt.Println()
 	}
 
 	return calculateGPS(matrix)
@@ -164,7 +162,36 @@ func moveLeft(matrix [][]string, y int, x int) bool {
 	return false
 }
 
+func canMoveUp(matrix [][]string, y int, x int) bool {
+	if matrix[y][x] == "." {
+		return true
+	}
+
+	ny := y - 1
+	nx := x
+
+	if matrix[y][x] == "O" || matrix[y][x] == "@" {
+		if canMoveUp(matrix, ny, nx) {
+			return true
+		}
+	} else if matrix[y][x] == "[" {
+		if canMoveUp(matrix, ny, nx) && canMoveUp(matrix, ny, nx+1) {
+			return true
+		}
+	} else if matrix[y][x] == "]" {
+		if canMoveUp(matrix, ny, nx) && canMoveUp(matrix, ny, nx-1) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func moveUp(matrix [][]string, y int, x int) bool {
+	if !canMoveUp(matrix, y, x) {
+		return false
+	}
+
 	if matrix[y][x] == "." {
 		return true
 	}
@@ -177,17 +204,13 @@ func moveUp(matrix [][]string, y int, x int) bool {
 			swap(matrix, ny, nx, y, x)
 			return true
 		}
-	}
-
-	if matrix[y][x] == "[" {
+	} else if matrix[y][x] == "[" {
 		if moveUp(matrix, ny, nx) && moveUp(matrix, ny, nx+1) {
 			swap(matrix, ny, nx, y, x)
 			swap(matrix, ny, nx+1, y, x+1)
 			return true
 		}
-	}
-
-	if matrix[y][x] == "]" {
+	} else if matrix[y][x] == "]" {
 		if moveUp(matrix, ny, nx) && moveUp(matrix, ny, nx-1) {
 			swap(matrix, ny, nx, y, x)
 			swap(matrix, ny, nx-1, y, x-1)
@@ -198,7 +221,36 @@ func moveUp(matrix [][]string, y int, x int) bool {
 	return false
 }
 
+func canMoveDown(matrix [][]string, y int, x int) bool {
+	if matrix[y][x] == "." {
+		return true
+	}
+
+	ny := y + 1
+	nx := x
+
+	if matrix[y][x] == "O" || matrix[y][x] == "@" {
+		if canMoveDown(matrix, ny, nx) {
+			return true
+		}
+	} else if matrix[y][x] == "[" {
+		if canMoveDown(matrix, ny, nx) && canMoveDown(matrix, ny, nx+1) {
+			return true
+		}
+	} else if matrix[y][x] == "]" {
+		if canMoveDown(matrix, ny, nx) && canMoveDown(matrix, ny, nx-1) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func moveDown(matrix [][]string, y int, x int) bool {
+	if !canMoveDown(matrix, y, x) {
+		return false
+	}
+
 	if matrix[y][x] == "." {
 		return true
 	}
@@ -211,17 +263,13 @@ func moveDown(matrix [][]string, y int, x int) bool {
 			swap(matrix, ny, nx, y, x)
 			return true
 		}
-	}
-
-	if matrix[y][x] == "[" {
+	} else if matrix[y][x] == "[" {
 		if moveDown(matrix, ny, nx) && moveDown(matrix, ny, nx+1) {
 			swap(matrix, ny, nx, y, x)
 			swap(matrix, ny, nx+1, y, x+1)
 			return true
 		}
-	}
-
-	if matrix[y][x] == "]" {
+	} else if matrix[y][x] == "]" {
 		if moveDown(matrix, ny, nx) && moveDown(matrix, ny, nx-1) {
 			swap(matrix, ny, nx, y, x)
 			swap(matrix, ny, nx-1, y, x-1)
@@ -237,9 +285,7 @@ func puzzle2() int {
 
 	matrix = resample(matrix)
 
-	// fmt.Println("Initial state:")
 	// utils.Debug(matrix)
-	// fmt.Println()
 
 	robot := getRobot(matrix)
 
@@ -269,15 +315,65 @@ func puzzle2() int {
 			}
 		}
 
-		// fmt.Println("Move", move, ":")
 		// utils.Debug(matrix)
-		// fmt.Println()
 	}
 
 	return calculateGPS(matrix)
 }
 
+func interactive() {
+
+	// disable input buffering
+	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
+	// do not display entered characters on the screen
+	exec.Command("stty", "-F", "/dev/tty", "-echo").Run()
+	defer exec.Command("stty", "-F", "/dev/tty", "echo").Run()
+
+	matrix, _ := readInput()
+
+	matrix = resample(matrix)
+
+	utils.Debug(matrix)
+
+	robot := getRobot(matrix)
+
+	var b []byte = make([]byte, 1)
+	for {
+		os.Stdin.Read(b)
+		move := string(b)
+
+		y := robot[0]
+		x := robot[1]
+
+		if move == "d" {
+			if moveRight(matrix, y, x+1) {
+				swap(matrix, y, x+1, y, x)
+				robot[1] = x + 1
+			}
+		} else if move == "a" {
+			if moveLeft(matrix, y, x-1) {
+				swap(matrix, y, x-1, y, x)
+				robot[1] = x - 1
+			}
+		} else if move == "w" {
+			if moveUp(matrix, y-1, x) {
+				swap(matrix, y-1, x, y, x)
+				robot[0] = y - 1
+			}
+		} else if move == "s" {
+			if moveDown(matrix, y+1, x) {
+				swap(matrix, y+1, x, y, x)
+				robot[0] = y + 1
+			}
+		}
+
+		utils.Debug(matrix)
+	}
+}
+
 func main() {
 	fmt.Println(puzzle1())
 	fmt.Println(puzzle2())
+
+	// interactive()
 }

@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func check(e error) {
@@ -46,13 +49,21 @@ func Contains(slice []int, value int) bool {
 	return false
 }
 
-func Debug[T any](matrix [][]T) {
+func Debug(matrix [][]string) {
+	time.Sleep(100 * time.Millisecond)
+	cmd := exec.Command("clear") //Linux example, its tested
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+
+	buf := new(bytes.Buffer)
+
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[0]); j++ {
-			fmt.Print(matrix[i][j])
+			buf.WriteString(matrix[i][j])
 		}
-		fmt.Println()
+		buf.WriteString("\n")
 	}
+	fmt.Println(buf)
 }
 
 func IsValidCoordinate[T any](matrix [][]T, y int, x int) bool {
