@@ -50,21 +50,19 @@ func Contains(slice []int, value int) bool {
 	return false
 }
 
-func Debug(matrix [][]string) {
+func Debug[T any](matrix [][]T) {
 	time.Sleep(100 * time.Millisecond)
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
-	buf := new(bytes.Buffer)
-
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[0]); j++ {
-			buf.WriteString(matrix[i][j])
+			fmt.Print(matrix[i][j])
 		}
-		buf.WriteString("\n")
+		fmt.Println()
 	}
-	fmt.Println(buf)
+	fmt.Println()
 }
 func DebugInt(matrix [][]int) {
 	time.Sleep(100 * time.Millisecond)
@@ -72,18 +70,13 @@ func DebugInt(matrix [][]int) {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
-	// buf := new(bytes.Buffer)
-
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[0]); j++ {
-			fmt.Print(matrix[i][j], " ")
-			// buf.WriteString(strconv.Itoa(matrix[i][j]))
+			fmt.Printf("%6d|", matrix[i][j])
 		}
 		fmt.Println()
-		// buf.WriteString("\n")
 	}
 	fmt.Println()
-	// fmt.Println(buf)
 }
 
 func DebugNoClear(matrix [][]string) {

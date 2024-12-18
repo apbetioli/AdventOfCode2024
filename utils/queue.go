@@ -1,18 +1,18 @@
 package utils
 
-type Node struct {
-	value int
-	next  *Node
+type Node[T any] struct {
+	value T
+	next  *Node[T]
 }
 
-type Queue struct {
+type Queue[T any] struct {
 	Length int
-	head   *Node
-	tail   *Node
+	head   *Node[T]
+	tail   *Node[T]
 }
 
-func (q *Queue) Enqueue(value int) {
-	node := &Node{value, nil}
+func (q *Queue[T]) Enqueue(value T) {
+	node := &Node[T]{value, nil}
 
 	if q.Length == 0 {
 		q.head = node
@@ -26,9 +26,9 @@ func (q *Queue) Enqueue(value int) {
 	q.Length++
 }
 
-func (q *Queue) Dequeue() int {
+func (q *Queue[T]) Dequeue() T {
 	if q.Length == 0 {
-		return -1
+		panic("Empty queue")
 	}
 
 	value := q.head.value
