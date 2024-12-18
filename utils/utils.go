@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -65,6 +66,25 @@ func Debug(matrix [][]string) {
 	}
 	fmt.Println(buf)
 }
+func DebugInt(matrix [][]int) {
+	time.Sleep(100 * time.Millisecond)
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+
+	// buf := new(bytes.Buffer)
+
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[0]); j++ {
+			fmt.Print(matrix[i][j], " ")
+			// buf.WriteString(strconv.Itoa(matrix[i][j]))
+		}
+		fmt.Println()
+		// buf.WriteString("\n")
+	}
+	fmt.Println()
+	// fmt.Println(buf)
+}
 
 func DebugNoClear(matrix [][]string) {
 	buf := new(bytes.Buffer)
@@ -80,4 +100,12 @@ func DebugNoClear(matrix [][]string) {
 
 func IsValidCoordinate[T any](matrix [][]T, y int, x int) bool {
 	return y >= 0 && y < len(matrix) && x >= 0 && x < len(matrix[0])
+}
+
+func Track(msg string) (string, time.Time) {
+	return msg, time.Now()
+}
+
+func Duration(msg string, start time.Time) {
+	log.Printf("%v: %v\n", msg, time.Since(start))
 }
