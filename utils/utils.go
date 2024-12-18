@@ -51,10 +51,22 @@ func Contains(slice []int, value int) bool {
 
 func Debug(matrix [][]string) {
 	time.Sleep(100 * time.Millisecond)
-	cmd := exec.Command("clear") //Linux example, its tested
+	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 
+	buf := new(bytes.Buffer)
+
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[0]); j++ {
+			buf.WriteString(matrix[i][j])
+		}
+		buf.WriteString("\n")
+	}
+	fmt.Println(buf)
+}
+
+func DebugNoClear(matrix [][]string) {
 	buf := new(bytes.Buffer)
 
 	for i := 0; i < len(matrix); i++ {
